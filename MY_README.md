@@ -1,56 +1,54 @@
+# 🏆 Flask CI/CD Pipeline with Cloud-Based Jenkins & GitHub Actions
 
-```md
-# 🏆 Flask CI/CD Pipeline with Jenkins & GitHub Actions
-
-This project automates the **CI/CD pipeline** for a **Flask web application** using **Jenkins and GitHub Actions**.  
-It enables automated **testing and deployment** to an **AWS EC2 instance**.
+This project sets up a **CI/CD pipeline** for a **Flask web application** using **Jenkins (cloud-based)** and **GitHub Actions**, enabling automated **testing and deployment** on an **AWS EC2 instance**.
 
 ---
 
 ## **📌 Project Overview**
-- **Original Repository:** [Forked from GitHub](https://github.com/maheshphalle/JenkinsCICDforFlask)
+- **Jenkins URL:** [https://jenkinsacademics.herovired.com/](https://jenkinsacademics.herovired.com/)
 - **Technologies Used:**
   - **Flask** (Python Web Framework)
   - **GitHub Actions** (CI/CD Workflow)
-  - **Jenkins** (CI/CD Automation)
+  - **Cloud-Based Jenkins** (CI/CD Automation)
   - **AWS EC2** (Cloud Deployment)
   - **PyTest** (Testing Framework)
-- **Goal:** Automate the build, test, and deployment process.
+- **Goal:** Automate build, test, and deployment of the Flask app.
 
 ---
 
-## **🚀 Jenkins CI/CD Pipeline Setup**
-### **1️⃣ Install Jenkins on AWS EC2**
-Run the following commands on your EC2 instance:
+## **🚀 Jenkins CI/CD Pipeline Setup (Cloud-Based Jenkins)**
+### **1️⃣ Fork & Clone Repository**
+1. Fork the repository from **GitHub**.
+2. Clone it to your EC2 instance:
+   ```bash
+   git clone https://github.com/maheshphalle/JenkinsCICDforFlask.git
+   cd JenkinsCICDforFlask
+   ```
+
+### **2️⃣ Configure Cloud-Based Jenkins Job**
+1. **Login to Jenkins:** [https://jenkinsacademics.herovired.com/](https://jenkinsacademics.herovired.com/)
+2. **Create a New Pipeline Job:**
+   - Click on **New Item** > **Pipeline**
+   - Enter the job name **maheshFlask-CI-CD**
+   - Select **Pipeline** and click **OK**
+3. **Set Up SCM (Source Code Management):**
+   - Under **Pipeline Definition**, select **Pipeline script from SCM**
+   - **SCM:** Git
+   - **Repository URL:** `https://github.com/maheshphalle/JenkinsCICDforFlask.git`
+   - **Branch:** `main`
+   - **Script Path:** `Jenkinsfile`
+
+### **3️⃣ Add SSH Key for GitHub Access**
+Since Jenkins needs access to your GitHub repository, you need to add an SSH key:
 ```bash
-sudo apt update && sudo apt install -y openjdk-11-jdk wget
-wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
-sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
-sudo apt update && sudo apt install -y jenkins
+ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
+cat ~/.ssh/id_rsa.pub  # Copy this key
 ```
-Start and enable Jenkins:
-```bash
-sudo systemctl start jenkins
-sudo systemctl enable jenkins
-```
-Get the initial password:
-```bash
-sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-```
-Go to **`http://<your-ec2-public-ip>:8080`** and complete the setup.
+- **Go to GitHub → Settings → SSH Keys → Add New SSH Key**
+- Paste the **public key** and save.
 
----
-
-### **2️⃣ Configure Jenkins Job**
-- **Go to Jenkins → New Item → Pipeline**
-- **Under "Pipeline Definition"**, select **Pipeline script from SCM**.
-- **Enter your GitHub Repository URL**.
-- **Ensure your repository has a `Jenkinsfile`**.
-
----
-
-### **3️⃣ Create `Jenkinsfile`**
-📌 Inside your GitHub repository, create a `Jenkinsfile`:
+### **4️⃣ Create & Push Jenkinsfile**
+Inside your repository, create `Jenkinsfile`:
 ```groovy
 pipeline {
     agent any
@@ -58,10 +56,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh '''
-                echo "Installing dependencies..."
-                python3 -m pip install --user -r requirements.txt
-                '''
+                sh 'python3 -m pip install --user -r requirements.txt'
             }
         }
 
@@ -74,9 +69,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                echo "Stopping existing Flask app..."
                 pkill -f app.py || true
-                echo "Starting Flask app..."
                 nohup python3 app.py > app.log 2>&1 &
                 '''
             }
@@ -86,24 +79,47 @@ pipeline {
     post {
         success {
             emailext subject: "✅ SUCCESS: Flask CI/CD Pipeline",
-                     body: "The Flask app was successfully deployed!",
+                     body: "Deployment successful!",
                      to: "mahesh.phalle@Outlook.com"
         }
         failure {
             emailext subject: "❌ FAILURE: Flask CI/CD Pipeline",
-                     body: "The Jenkins build has failed. Check logs.",
+                     body: "Build failed. Check logs.",
                      to: "mahesh.phalle@Outlook.com"
         }
     }
 }
 ```
-📌 **Commit and push it to GitHub.**
+```bash
+git add Jenkinsfile
+git commit -m "Added Jenkins pipeline"
+git push origin main
+```
+
+### **5️⃣ Run & Debug Jenkins Job**
+1. **Go to Jenkins Dashboard → Click "Build Now"**
+2. If errors occur:
+   - Check **Console Output** for missing dependencies.
+   - If Python dependencies fail, run:
+     ```bash
+     python3 -m ensurepip --default-pip
+     python3 -m pip install --user --upgrade pip
+     ```
+   - If `ModuleNotFoundError: No module named 'flask'`, run:
+     ```bash
+     export PYTHONPATH=$PWD
+     python3 app.py
+     ```
+3. **Verify app is running:**
+   ```bash
+   curl http://localhost:5000
+   ```
 
 ---
 
 ## **🔥 GitHub Actions CI/CD Workflow**
-### **1️⃣ Create GitHub Actions Workflow File**
-Create a new file in `.github/workflows/ci-cd.yml`:
+### **1️⃣ Create & Push Workflow File**
+Inside `.github/workflows/ci-cd.yml`:
 ```yaml
 name: Flask CI/CD
 
@@ -151,36 +167,8 @@ jobs:
             nohup python3 app.py > app.log 2>&1 &
           EOF
 ```
-📌 **Commit and push it to GitHub.**
-
----
-
-## **🌐 Configure AWS EC2 for Public Access**
-### **1️⃣ Update `app.py`**
-Modify `app.py` to **listen on all IPs**:
-```python
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-```
-
-### **2️⃣ Allow External Access**
-Update **AWS Security Group**:
-- **Go to AWS EC2 → Security Groups → Inbound Rules**.
-- **Add a rule:**
-  - **Type:** Custom TCP
-  - **Port:** `5000`
-  - **Source:** `0.0.0.0/0`
-
-✅ **Now, access the app via:**  
-```
-http://<YOUR-EC2-PUBLIC-IP>:5000
-```
-
----
-
+```bash
+git add .github/workflows/ci-cd.yml
+git commit -m "Added GitHub Actions workflow"
 git push origin main
 ```
-
-✅ **Now your `MY_README.md` contains the full step-by-step process without modifying the original README.md.**  
-
-📌 **Let me know if you need any changes! 🚀**
