@@ -178,47 +178,6 @@ http://<YOUR-EC2-PUBLIC-IP>:5000
 
 ---
 
-## **📸 Screenshots**
-### **✅ Jenkins Pipeline Execution**
-- Screenshot of **successful build**.
-- Screenshot of **failed build and email notification**.
-
-### **✅ GitHub Actions Workflow**
-- Screenshot of **workflow run** in GitHub Actions.
-- Screenshot of **deployment logs** showing the Flask restart.
-
----
-
-## **✅ Project Submission**
-### **Deliverables:**
-- **GitHub Repository with Jenkinsfile & GitHub Actions**
-- **README.md with all setup details**
-- **Screenshots of CI/CD pipeline execution**
-
-### **Submission Instructions**
-1. **Ensure all code is pushed to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Final submission"
-   git push origin main
-   ```
-2. **Upload screenshots to `screenshots/` directory**.
-3. **Submit the GitHub Repository URL via VLearn.**
-
-🔗 **GitHub Repository:** [https://github.com/maheshphalle/JenkinsCICDforFlask](https://github.com/maheshphalle/JenkinsCICDforFlask)
-
-🚀 **Project successfully completed! 🎉**
-```
-
-📌 **Save and exit (`CTRL + X`, then `Y`, then `ENTER`).**
-
----
-
-## **✅ Step 2: Push Your Notes to GitHub**
-Run:
-```bash
-git add MY_README.md
-git commit -m "Add detailed project documentation"
 git push origin main
 ```
 
