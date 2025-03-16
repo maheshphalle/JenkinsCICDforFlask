@@ -19,7 +19,7 @@ pipeline {
 
                 echo "Installing dependencies with system override..."
                 python3 -m pip install --break-system-packages --user -r requirements.txt
-                '''
+                ''' # ✅ Correctly closed multi-line string
             }
         }
 
@@ -28,7 +28,7 @@ pipeline {
                 sh '''
                 echo "Running tests..."
                 python3 -m pytest || echo "Tests failed!"
-                '''
+                ''' # ✅ Correctly closed multi-line string
             }
         }
 
@@ -36,4 +36,10 @@ pipeline {
             steps {
                 sh '''
                 echo "Starting Flask app..."
-                cd proje
+                cd project  # Move to the correct directory
+                nohup python3 app.py > app.log 2>&1 &  # Run Flask app in the background
+                ''' # ✅ Correctly closed multi-line string
+            }
+        }
+    }
+}
