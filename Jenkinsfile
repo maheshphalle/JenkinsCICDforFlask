@@ -36,9 +36,4 @@ pipeline {
             steps {
                 sh '''
                 echo "Starting Flask app..."
-                python3 app.py &
-                '''
-            }
-        }
-    }
-}
+                cd proje
