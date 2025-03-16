@@ -17,8 +17,8 @@ pipeline {
                 echo "Verifying pip installation..."
                 python3 -m pip --version
 
-                echo "Installing dependencies..."
-                python3 -m pip install --user -r requirements.txt
+                echo "Installing dependencies with system override..."
+                python3 -m pip install --break-system-packages --user -r requirements.txt
                 '''
             }
         }
